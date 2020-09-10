@@ -4,6 +4,10 @@
 #include "linux_parser.h"
 
 // TODO: Return the aggregate CPU utilization
-float Processor::Utilization() { 
-    return (float)(LinuxParser::ActiveJiffies() / sysconf(_SC_CLK_TCK) / LinuxParser::UpTime()); 
+float Processor::Utilization() {
+  float total = LinuxParser::Jiffies();
+  float active = LinuxParser::ActiveJiffies();
+  float result = 1.0 * (active/total);
+
+  return result;
 }

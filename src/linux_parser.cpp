@@ -99,8 +99,7 @@ float LinuxParser::MemoryUtilization() {
         buffers = value;
     }
   }
-  // Shows high memory usage
-  // return ((memTotal - memFree) / memTotal);
+
   return 1 - (memFree / (memTotal - buffers));
 }
 
@@ -135,7 +134,7 @@ long LinuxParser::UpTime() {
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
-  return LinuxParser::UpTime()*sysconf(_SC_CLK_TCK);
+  return LinuxParser::UpTime() * sysconf(_SC_CLK_TCK);
   // std::string line;
   // std::string key;
   // long value = 0;
@@ -163,59 +162,16 @@ long LinuxParser::Jiffies() {
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { 
-  // std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatFilename);
-  // long value;
-  // string line, stime, cstime, cutime;
-
-  // if (stream.is_open()) {
-  //   int count = 1;
-  //   string temp;
-
-  //   getline(stream, line);
-  //   std::istringstream istream(line);
-
-  //   while(count <= 13) {
-  //     istream >> temp;
-  //     count++;
-  //   }
-
-  //   istream >> stime >> stime >> cutime >> cstime;
-  // }
-  // value = std::stol(stime) + std::stol(stime) +
-  //         std::stol(cutime) + std::stol(cstime);
-  // return value;
-  return 0;
-}
+long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
   vector<string> util = LinuxParser::CpuUtilization();
   long ajiff = 0;
-  ajiff = stol(util[0]) + stol(util[1]) + stol(util[2]) + stol(util[5]) + stol(util[6])
-  + stol(util[7]) + stol(util[8]) + stol(util[9]);
+  ajiff = stol(util[0]) + stol(util[1]) + stol(util[2]) + stol(util[5]) +
+          stol(util[6]) + stol(util[7]) + stol(util[8]) + stol(util[9]);
 
-  return ajiff; 
-  // std::ifstream stream(kProcDirectory + kStatFilename);
-
-  // if (stream.is_open()) {
-  //   string line, key;
-  //   int kNice_, kUser_, kIRQ_, kSoftIRQ_, kSystem_, kSteal_;
-  //   int temp;
-
-
-  //   getline(stream, line);
-  //   std::istringstream istream(line);
-
-  //   istream >> key;
-  //   if (key == "cpu") {
-  //     istream >> kUser_ >> kNice_ >> kSystem_;
-  //     istream >> temp >> temp;
-  //     istream >> kIRQ_ >> kSoftIRQ_ >> kSteal_;
-  //   }
-  //   return kUser_ + kNice_ + kSystem_ + kIRQ_ + kSoftIRQ_ + kSteal_;
-  // }
-  // return 0;
+  return ajiff;
 }
 
 // DONE: Read and return the number of idle jiffies for the system
@@ -232,7 +188,7 @@ vector<string> LinuxParser::CpuUtilization() {
   std::string line, key, token;
   vector<string> values;
 
-  std::ifstream stream("/proc/stat");
+  std::ifstream stream(kProcDirectory + kStatFilename);
 
   if (stream.is_open()) {
     std::getline(stream, line);
@@ -240,23 +196,22 @@ vector<string> LinuxParser::CpuUtilization() {
 
     while (istream >> key) {
       if (key == "cpu") {
-        while (istream >> token) 
-          values.push_back(token);
+        while (istream >> token) values.push_back(token);
 
         return values;
       }
     }
   }
   return values;
-      
-      // for (int i = 0; i < 6; i++) {
-      //   long ticks;
-      //   istream >> ticks;
 
-      //   if (i == 4 || i == 5) {
-      //     value += ticks;
-      //   }
-      // }
+  // for (int i = 0; i < 6; i++) {
+  //   long ticks;
+  //   istream >> ticks;
+
+  //   if (i == 4 || i == 5) {
+  //     value += ticks;
+  //   }
+  // }
 }
 
 // DONE: Read and return the total number of processes
@@ -285,7 +240,6 @@ int LinuxParser::RunningProcesses() {
   std::string line, key;
   int value;
 
-  // Double '/' may cause explosions
   std::ifstream stream(kProcDirectory + kStatFilename);
 
   if (stream.is_open()) {
@@ -302,21 +256,20 @@ int LinuxParser::RunningProcesses() {
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid) { 
+string LinuxParser::Command(int pid) {
   string line;
-  std::ifstream stream(kProcDirectory + to_string(pid)+ kCmdlineFilename);
+  std::ifstream stream(kProcDirectory + to_string(pid) + kCmdlineFilename);
 
-  if (stream.is_open())
-    std::getline(stream, line);
+  if (stream.is_open()) std::getline(stream, line);
 
   return line;
 }
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) {
+string LinuxParser::Ram(int pid) {
   std::string line, key, value, ram;
-  std::ifstream stream(kProcDirectory + to_string(pid)+ kStatusFilename);
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatusFilename);
 
   if (stream.is_open()) {
     while (std::getline(stream, line)) {
@@ -325,7 +278,7 @@ string LinuxParser::Ram(int pid[[maybe_unused]]) {
       while (istream >> key >> value) {
         if (key == "VmData:") {
           ram = value;
-          return to_string(stoi(ram)/1024);
+          return to_string(stoi(ram) / 1024);
         }
       }
     }
@@ -359,8 +312,9 @@ string LinuxParser::Uid(int pid) {
 // TODO: Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::User(int pid) {
-  std::string line, user, filler;
-  int uid;
+  std::string line, user, filler, key;
+  std::string uid = Uid(pid);
+  // int uid;
 
   std::ifstream stream(kPasswordPath);
 
@@ -370,8 +324,8 @@ string LinuxParser::User(int pid) {
 
       std::istringstream istream(line);
 
-      istream >> user >> filler >> uid;
-      if (uid == pid) {
+      istream >> user >> filler >> key;
+      if (key == uid) {
         return user;
       }
     }
@@ -383,16 +337,15 @@ string LinuxParser::User(int pid) {
 // REMOVE: [[maybe_unused]] once you define the function
 long int LinuxParser::UpTime(int pid) {
   int count = 0;
-  std::string line, key, token;
+  std::string line, key;
   std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
 
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream istream(line);
 
-    while (istream >> key && count < 22)
-      ++count;
+    while (istream >> key && count == 22) ++count;
   }
-  
+
   return std::stol(key);
 }

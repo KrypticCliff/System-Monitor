@@ -21,11 +21,6 @@ class Process {
  private:
   int pid_;
   float cpu_;
-  long uptime_;
-  std::string ram_;
-  std::string command_;
-  std::string user_;
-
 };
 
 #endif
