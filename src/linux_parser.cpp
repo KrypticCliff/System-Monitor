@@ -81,7 +81,6 @@ float LinuxParser::MemoryUtilization() {
   float memFree = 0;
   float buffers = 0;
 
-  // Double '/' may cause explosion
   std::ifstream stream(kProcDirectory + kMeminfoFilename);
 
   if (stream.is_open()) {
@@ -108,7 +107,6 @@ long LinuxParser::UpTime() {
   std::string line;
   long value;
 
-  // Double '/' may cause explosion
   std::ifstream stream(kProcDirectory + kUptimeFilename);
 
   // TESTING:
@@ -135,29 +133,6 @@ long LinuxParser::UpTime() {
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
   return LinuxParser::UpTime() * sysconf(_SC_CLK_TCK);
-  // std::string line;
-  // std::string key;
-  // long value = 0;
-
-  // // Double '/' may cause explosion
-  // std::ifstream stream(kProcDirectory + kStatFilename);
-
-  // if (stream.is_open()) {
-  //   getline(stream, line);
-  //   std::istringstream istream(line);
-  //   istream >> key;
-
-  //   if (key == "cpu") {
-  //     for (int i = 0; i < 10; i++) {
-  //       long ticks;
-
-  //       istream >> ticks;
-  //       value += ticks;
-  //     }
-  //     return value;
-  //   }
-  // }
-  // return 0;
 }
 
 // TODO: Read and return the number of active jiffies for a PID
@@ -174,7 +149,7 @@ long LinuxParser::ActiveJiffies() {
   return ajiff;
 }
 
-// DONE: Read and return the number of idle jiffies for the system
+// TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
   vector<string> util = LinuxParser::CpuUtilization();
   long ijiff = 0;
@@ -204,6 +179,7 @@ vector<string> LinuxParser::CpuUtilization() {
   }
   return values;
 
+  // TEST:
   // for (int i = 0; i < 6; i++) {
   //   long ticks;
   //   istream >> ticks;
@@ -220,7 +196,6 @@ int LinuxParser::TotalProcesses() {
   std::string key;
   int value;
 
-  // Double '/' may cause explosion
   std::ifstream stream(kProcDirectory + kStatFilename);
 
   if (stream.is_open()) {
@@ -314,7 +289,6 @@ string LinuxParser::Uid(int pid) {
 string LinuxParser::User(int pid) {
   std::string line, user, filler, key;
   std::string uid = Uid(pid);
-  // int uid;
 
   std::ifstream stream(kPasswordPath);
 
